@@ -57,6 +57,15 @@
 | Serving | FastAPI + 정적 프론트 | `src/wc26/api/` |
 | Container / Deploy | Docker · Docker Compose · Kubernetes | `docker/`, `docker-compose.yml`, `k8s/` |
 
+### API
+
+| 엔드포인트 | 설명 |
+| --- | --- |
+| `GET /api/tonight?hours=24&min_score=0` | 지금(KST)부터 `hours`시간 내 경기, 점수순. `min_score`로 하한 필터 |
+| `GET /api/day/{YYYY-MM-DD}?min_score=0` | 특정 KST 날짜의 모든 경기, 점수순 |
+| `GET /healthz` | 헬스체크 |
+| `GET /` | "오늘 밤" 화면 (정적 프론트) |
+
 ### 점수 산정 (`transform/score.py`)
 
 추천도는 여러 요인의 가중합(0~100)입니다.
