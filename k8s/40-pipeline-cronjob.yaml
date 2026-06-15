@@ -26,6 +26,32 @@ spec:
                 - configMapRef: { name: wc26-config }
                 - secretRef: { name: wc26-secrets }
 ---
+# 킥오프 전 알림: 파이프라인보다 자주 돌려 1시간 내 시작하는 고득점 경기를 통지.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: wc26-notify
+  namespace: wc26
+spec:
+  schedule: "*/15 * * * *"        # 15분마다
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: notify
+              image: wc26-alarm-app:latest
+              imagePullPolicy: IfNotPresent
+              command: ["python", "-m", "wc26.run", "notify", "--lead-minutes", "60", "--min-score", "80"]
+              envFrom:
+                - configMapRef: { name: wc26-config }
+                - secretRef: { name: wc26-secrets }
+---
 # 최초 1회 스키마 적용용 Job (kubectl apply 후 수동 실행 권장).
 apiVersion: batch/v1
 kind: Job

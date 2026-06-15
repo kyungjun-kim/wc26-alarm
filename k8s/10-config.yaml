@@ -19,3 +19,5 @@ metadata:
 type: Opaque
 stringData:
   FOOTBALL_DATA_TOKEN: "REPLACE_ME"
+  # 킥오프 전 알림 웹훅 (Slack/Discord). 비워두면 알림은 no-op.
+  WEBHOOK_URL: ""

@@ -55,7 +55,20 @@
 | Transform | Python (가중합 점수) | `src/wc26/transform/score.py` |
 | Orchestration | Airflow (TaskFlow DAG) | `dags/wc26_pipeline.py` |
 | Serving | FastAPI + 정적 프론트 | `src/wc26/api/` |
+| Notify | 웹훅 알림 (Slack/Discord) | `src/wc26/notify.py` |
 | Container / Deploy | Docker · Docker Compose · Kubernetes | `docker/`, `docker-compose.yml`, `k8s/` |
+
+### 알림 (이름값 하는 기능)
+
+곧 시작하는 고득점 경기를 킥오프 전에 웹훅으로 알립니다.
+
+```bash
+export WEBHOOK_URL=<Slack/Discord 호환 웹훅 URL>
+python -m wc26.run notify --lead-minutes 60 --min-score 80
+```
+
+- `WEBHOOK_URL` 미설정이면 no-op. `notifications` 테이블로 멱등성을 보장해 같은 경기를 두 번 알리지 않습니다.
+- K8s에선 별도 CronJob(`wc26-notify`)이 15분마다 돌며 1시간 내 시작하는 점수 80+ 경기를 통지합니다.
 
 ### API
 

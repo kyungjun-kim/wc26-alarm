@@ -7,6 +7,7 @@
     python -m wc26.run enrich        # FotMob xG 보강 (선택, 비공식)
     python -m wc26.run publish
     python -m wc26.run all          # ingest -> enrich -> transform -> publish
+    python -m wc26.run notify --lead-minutes 60 --min-score 80  # 킥오프 전 알림
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ import sys
 from pathlib import Path
 
 from .db import get_conn
+from .notify import notify_upcoming
 from .pipeline import enrich_metrics, ingest_football_data, publish, transform_scores
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -35,8 +37,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="wc26.run")
     parser.add_argument(
         "step",
-        choices=["initdb", "ingest", "transform", "enrich", "publish", "all"],
+        choices=["initdb", "ingest", "transform", "enrich", "publish", "notify", "all"],
     )
+    parser.add_argument("--lead-minutes", type=int, default=60, help="notify: 킥오프 N분 전")
+    parser.add_argument("--min-score", type=int, default=80, help="notify: 알림 점수 하한")
     args = parser.parse_args(argv)
 
     steps = {
@@ -51,6 +55,8 @@ def main(argv: list[str] | None = None) -> int:
         enrich_metrics()
         transform_scores()
         publish()
+    elif args.step == "notify":
+        notify_upcoming(lead_minutes=args.lead_minutes, min_score=args.min_score)
     else:
         steps[args.step]()
     return 0

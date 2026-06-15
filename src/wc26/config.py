@@ -20,6 +20,7 @@ FOTMOB_BASE = "https://www.fotmob.com/api/data"
 class Settings:
     database_url: str
     football_data_token: str
+    webhook_url: str
     request_timeout: int = 15
 
     @classmethod
@@ -30,6 +31,8 @@ class Settings:
                 "postgresql://wc26:wc26@localhost:5432/wc26",
             ),
             football_data_token=os.environ.get("FOOTBALL_DATA_TOKEN", ""),
+            # 알림 전송용 웹훅 (Slack/Discord 호환). 미설정이면 알림은 no-op.
+            webhook_url=os.environ.get("WEBHOOK_URL", ""),
             request_timeout=int(os.environ.get("REQUEST_TIMEOUT", "15")),
         )
 

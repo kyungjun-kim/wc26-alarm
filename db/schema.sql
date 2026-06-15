@@ -33,6 +33,12 @@ CREATE TABLE IF NOT EXISTS scored_matches (
     computed_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- 알림 발송 기록 (멱등성 — 같은 경기를 두 번 알리지 않기 위함)
+CREATE TABLE IF NOT EXISTS notifications (
+    match_id  BIGINT PRIMARY KEY REFERENCES raw_matches (match_id) ON DELETE CASCADE,
+    sent_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- 서빙 뷰: 경기 + 점수를 합쳐 KST 킥오프와 함께 노출
 CREATE OR REPLACE VIEW tonight_view AS
 SELECT
