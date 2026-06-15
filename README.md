@@ -30,7 +30,7 @@
 | FIFA 랭킹 (랭킹 격차 점수용) | 대회 시작 시점 스냅샷 (`src/wc26/rankings.py`) | 정적 |
 
 - **football-data.org** 를 안정적인 기반으로 사용해 일정·단계 데이터를 받습니다.
-- **FotMob** 은 비공식 API라 깨질 수 있어 보조 지표 보강용으로만 쓰고, 실패해도 핵심 기능엔 영향이 없도록 graceful하게 처리합니다. `enrich` 단계가 진행/종료된 경기를 팀명·날짜로 FotMob과 매칭(`src/wc26/sources/fotmob.py`)해 xG를 `match_metrics`에 적재하며, 매칭 실패나 엔드포인트 변경 시 조용히 건너뜁니다.
+- **FotMob** 은 비공식 API라 깨질 수 있어 보조 지표 보강용으로만 쓰고, 실패해도 핵심 기능엔 영향이 없도록 graceful하게 처리합니다. `enrich` 단계가 진행/종료된 경기를 팀명·날짜로 FotMob(`/api/data/matches`·`/api/data/matchDetails`)과 매칭(`src/wc26/sources/fotmob.py`)해 xG를 `match_metrics`에 적재하며, 매칭 실패나 엔드포인트 변경 시 조용히 건너뜁니다.
 - **FIFA 랭킹** 은 대회 중 변하지 않으므로 스냅샷을 정적 데이터로 둡니다.
 
 ## 아키텍처

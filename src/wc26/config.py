@@ -11,8 +11,9 @@ UTC = ZoneInfo("UTC")
 FOOTBALL_DATA_COMPETITION = "WC"
 FOOTBALL_DATA_BASE = "https://api.football-data.org/v4"
 
-# FotMob 비공식 엔드포인트 (공식 지원 아님 — 깨질 수 있음)
-FOTMOB_BASE = "https://www.fotmob.com/api"
+# FotMob 비공식 엔드포인트 (공식 지원 아님 — 깨질 수 있음).
+# 실제 데이터 API는 /api/data/ 하위에 있다 (/api/matches 는 404 HTML 반환).
+FOTMOB_BASE = "https://www.fotmob.com/api/data"
 
 
 @dataclass(frozen=True)

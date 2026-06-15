@@ -122,12 +122,19 @@ def _extract_metrics(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def _safe_xg(stats: dict[str, Any], side: int) -> float | None:
+    """content.stats.Periods.All.stats[].stats[] 에서 xG 값을 찾는다.
+
+    xG 항목 형태: {"key": "expected_goals", "type": "text", "stats": ["1.05", "1.05"]}.
+    같은 key로 type=="title"(값 [null, null])인 항목도 섞여 있으므로 스칼라 값만 받는다.
+    """
     try:
-        # FotMob 구조는 자주 바뀌므로 키가 없으면 조용히 None.
         for group in stats.get("Periods", {}).get("All", {}).get("stats", []):
             for item in group.get("stats", []):
-                if item.get("title", "").lower() in {"expected goals (xg)", "xg"}:
-                    return float(item["stats"][side])
+                if not isinstance(item, dict) or item.get("key") != "expected_goals":
+                    continue
+                value = item.get("stats", [])[side]
+                if isinstance(value, (str, int, float)):
+                    return float(value)
     except (KeyError, IndexError, TypeError, ValueError):
         pass
     return None
