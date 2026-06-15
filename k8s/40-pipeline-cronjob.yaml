@@ -1,0 +1,47 @@
+# 파이프라인을 K8s 네이티브 CronJob으로도 돌릴 수 있다.
+# (Airflow를 클러스터에 올리면 이 CronJob 대신 Airflow가 스케줄을 담당.
+#  둘 중 하나만 활성화하면 된다 — 여기선 가벼운 네이티브 옵션을 제공.)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: wc26-pipeline
+  namespace: wc26
+spec:
+  schedule: "0 * * * *"          # 매시간
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: pipeline
+              image: wc26-alarm-app:latest
+              imagePullPolicy: IfNotPresent
+              command: ["python", "-m", "wc26.run", "all"]
+              envFrom:
+                - configMapRef: { name: wc26-config }
+                - secretRef: { name: wc26-secrets }
+---
+# 최초 1회 스키마 적용용 Job (kubectl apply 후 수동 실행 권장).
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wc26-initdb
+  namespace: wc26
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: initdb
+          image: wc26-alarm-app:latest
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "wc26.run", "initdb"]
+          envFrom:
+            - configMapRef: { name: wc26-config }
+            - secretRef: { name: wc26-secrets }

@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# 환경/비밀
+.env
+
+# Airflow 로컬 산출물
+airflow.cfg
+airflow.db
+logs/
+standalone_admin_password.txt

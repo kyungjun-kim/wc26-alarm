@@ -1,0 +1,6 @@
+# 런타임 의존성 (app 이미지: ingest/transform/api 공용)
+# Airflow는 자체 공식 이미지를 사용하므로 여기 포함하지 않는다.
+requests>=2.31
+psycopg[binary]>=3.1
+fastapi>=0.110
+uvicorn[standard]>=0.29

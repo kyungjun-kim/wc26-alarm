@@ -1,0 +1,21 @@
+# 비밀이 아닌 설정은 ConfigMap, football-data 토큰은 Secret.
+# 실제 토큰은 커밋하지 말 것 — 아래는 자리표시자다.
+# 적용 예:
+#   kubectl -n wc26 create secret generic wc26-secrets \
+#     --from-literal=FOOTBALL_DATA_TOKEN=<발급받은_토큰>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wc26-config
+  namespace: wc26
+data:
+  DATABASE_URL: postgresql://wc26:wc26@postgres:5432/wc26
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: wc26-secrets
+  namespace: wc26
+type: Opaque
+stringData:
+  FOOTBALL_DATA_TOKEN: "REPLACE_ME"

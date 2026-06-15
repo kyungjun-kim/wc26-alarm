@@ -1,0 +1,57 @@
+# 로컬 개발용 스택: postgres + api + airflow(standalone).
+# K8s 배포 전에 빠르게 띄워 검증하는 용도.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: wc26
+      POSTGRES_PASSWORD: wc26
+      POSTGRES_DB: wc26
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wc26"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    environment:
+      DATABASE_URL: postgresql://wc26:wc26@postgres:5432/wc26
+      FOOTBALL_DATA_TOKEN: ${FOOTBALL_DATA_TOKEN:-}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  airflow:
+    build:
+      context: .
+      dockerfile: docker/airflow.Dockerfile
+    command: airflow standalone
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://wc26:wc26@postgres:5432/wc26
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      DATABASE_URL: postgresql://wc26:wc26@postgres:5432/wc26
+      FOOTBALL_DATA_TOKEN: ${FOOTBALL_DATA_TOKEN:-}
+      PYTHONPATH: /opt/wc26/src
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags:ro
+      - ./src:/opt/wc26/src:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
