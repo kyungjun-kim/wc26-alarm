@@ -19,7 +19,8 @@ _STATIC_DIR = Path(__file__).parent / "static"
 # 모든 경기 조회가 공유하는 컬럼 + 정렬 (점수 높은 순, 동점이면 킥오프 빠른 순)
 _SELECT_COLS = """
     match_id, kst_kickoff, stage, group_name, status,
-    home_team, away_team, home_score, away_score, score, label
+    home_team, away_team, home_score, away_score, score, label,
+    home_xg, away_xg
 """
 _ORDER_BY = "ORDER BY COALESCE(score, 0) DESC, utc_kickoff ASC"
 

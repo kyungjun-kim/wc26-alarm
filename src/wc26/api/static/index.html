@@ -14,6 +14,7 @@
     .time { font-variant-numeric: tabular-nums; color: #888; min-width: 5.5rem; }
     .teams { flex: 1; font-weight: 600; }
     .label { font-size: .9rem; white-space: nowrap; }
+    .xg { font-size: .8rem; color: #888; white-space: nowrap; font-variant-numeric: tabular-nums; }
     .score { font-variant-numeric: tabular-nums; min-width: 2.5rem; text-align: right; color: #888; }
     .empty { color: #888; padding: 2rem 0; }
   </style>
@@ -40,13 +41,18 @@
           list.innerHTML = '<li class="empty">향후 48시간 내 예정 경기가 없습니다.</li>';
           return;
         }
-        list.innerHTML = data.matches.map((m) => `
+        list.innerHTML = data.matches.map((m) => {
+          const xg = (m.home_xg != null && m.away_xg != null)
+            ? `<span class="xg">xG ${m.home_xg.toFixed(1)}–${m.away_xg.toFixed(1)}</span>` : "";
+          return `
           <li>
             <span class="time">${fmtKst(m.kst_kickoff)}</span>
             <span class="teams">${m.home_team ?? "?"} vs ${m.away_team ?? "?"}</span>
+            ${xg}
             <span class="label">${m.label ?? ""}</span>
             <span class="score">${m.score ?? "-"}</span>
-          </li>`).join("");
+          </li>`;
+        }).join("");
       } catch (e) {
         list.innerHTML = `<li class="empty">불러오기 실패: ${e}</li>`;
       }

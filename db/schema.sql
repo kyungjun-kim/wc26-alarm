@@ -47,6 +47,9 @@ SELECT
     r.home_score,
     r.away_score,
     s.score,
-    s.label
+    s.label,
+    m.home_xg,
+    m.away_xg
 FROM raw_matches r
-LEFT JOIN scored_matches s USING (match_id);
+LEFT JOIN scored_matches s USING (match_id)
+LEFT JOIN match_metrics m USING (match_id);
