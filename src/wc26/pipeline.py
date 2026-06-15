@@ -51,10 +51,19 @@ def ingest_football_data() -> int:
 def transform_scores() -> int:
     """raw_matches를 읽어 점수를 계산하고 scored_matches에 저장."""
     with get_conn() as conn, conn.cursor() as cur:
-        cur.execute("SELECT match_id, home_team, away_team, stage FROM raw_matches")
+        cur.execute(
+            """
+            SELECT r.match_id, r.home_team, r.away_team, r.stage,
+                   m.home_xg, m.away_xg
+            FROM raw_matches r
+            LEFT JOIN match_metrics m USING (match_id)
+            """
+        )
         rows = cur.fetchall()
         for r in rows:
-            sm = score_match(r["home_team"], r["away_team"], r["stage"])
+            sm = score_match(
+                r["home_team"], r["away_team"], r["stage"], r["home_xg"], r["away_xg"]
+            )
             cur.execute(
                 """
                 INSERT INTO scored_matches (match_id, score, label, computed_at)

@@ -30,3 +30,22 @@ def test_label_thresholds():
 def test_score_capped_at_100():
     sm = score_match("Korea Republic", "Argentina", "FINAL")
     assert sm.score <= 100
+
+
+def test_xg_is_ignored_when_absent():
+    # 기본 호출(xG 없음)은 기존 동작과 동일해야 한다
+    assert score_match("Spain", "Portugal", "LAST_16").score == score_match(
+        "Spain", "Portugal", "LAST_16", None, None
+    ).score
+
+
+def test_high_close_xg_raises_score():
+    base = score_match("Germany", "Unknownland", "GROUP_STAGE").score
+    thriller = score_match("Germany", "Unknownland", "GROUP_STAGE", 2.4, 2.1).score
+    assert thriller > base
+
+
+def test_low_xg_blowout_adds_little():
+    base = score_match("Germany", "Unknownland", "GROUP_STAGE").score
+    dull = score_match("Germany", "Unknownland", "GROUP_STAGE", 0.2, 0.1).score
+    assert dull - base <= 2

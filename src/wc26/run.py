@@ -6,7 +6,7 @@
     python -m wc26.run transform
     python -m wc26.run enrich        # FotMob xG 보강 (선택, 비공식)
     python -m wc26.run publish
-    python -m wc26.run all          # ingest -> transform -> enrich -> publish
+    python -m wc26.run all          # ingest -> enrich -> transform -> publish
 """
 
 from __future__ import annotations
@@ -48,8 +48,8 @@ def main(argv: list[str] | None = None) -> int:
     }
     if args.step == "all":
         ingest_football_data()
-        transform_scores()
         enrich_metrics()
+        transform_scores()
         publish()
     else:
         steps[args.step]()

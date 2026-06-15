@@ -51,11 +51,35 @@ def _stage_points(stage: str | None) -> float:
     return float(STAGE_WEIGHT.get(stage or "", STAGE_WEIGHT["GROUP_STAGE"]))
 
 
-def score_match(home: str | None, away: str | None, stage: str | None) -> ScoredMatch:
+def _xg_bonus(home_xg: float | None, away_xg: float | None) -> float:
+    """이미 치러진 경기의 실제 xG로 '명경기였는지' 사후 보정. 최대 +15.
+
+    찬스가 많았고(높은 총 xG) 접전이었으면(작은 xG 격차) 가산한다.
+    xG가 없으면(경기 전/미보강) 0 — 사전 추천 점수에 영향 없음.
+    """
+    if home_xg is None or away_xg is None:
+        return 0.0
+    total = home_xg + away_xg
+    excitement = min(10.0, total * 2.5)          # 총 xG 4.0 -> 10점에 수렴
+    gap = abs(home_xg - away_xg)
+    # 접전 보너스는 '찬스가 많았던' 경기에만 의미 — 총 xG로 스케일.
+    # 0-0 무미건조한 경기는 균형이어도 가산을 거의 받지 않는다.
+    closeness = max(0.0, 5.0 * (1 - gap / 2.0)) * min(1.0, total / 3.0)
+    return excitement + closeness
+
+
+def score_match(
+    home: str | None,
+    away: str | None,
+    stage: str | None,
+    home_xg: float | None = None,
+    away_xg: float | None = None,
+) -> ScoredMatch:
     raw = (
         _stage_points(stage)
         + _ranking_gap_points(home, away)
         + _big_match_points(home, away)
+        + _xg_bonus(home_xg, away_xg)
     )
     if is_korea(home) or is_korea(away):
         raw += KOREA_BONUS

@@ -44,7 +44,7 @@
  FotMob (xG, 보강) ──┘     raw_matches        scored_matches           + 오늘 밤 화면
                           match_metrics       tonight_view (KST)
                                   ▲
-                  Airflow DAG: ingest → transform → enrich → publish
+                  Airflow DAG: ingest → enrich → transform → publish
                           (또는 K8s CronJob)
 ```
 
@@ -76,6 +76,9 @@
 - **FIFA 랭킹 격차** — 격차가 작을수록 명승부 가능성 ↑ (최대 +25)
 - **토너먼트 단계** — 녹아웃 > 조별 최종전 > 조별 1·2차전
 - **빅매치** — 양 팀 모두 상위 랭킹이면 보너스 (최대 +20)
+- **실제 xG** — 이미 치러진 경기는 FotMob xG로 사후 보정 (찬스 많고 접전이었으면 가산, 최대 +15). 경기 전엔 미적용
+
+> 사전 추천(경기 전)은 랭킹·단계·빅매치로, 사후 보정(경기 후)은 실제 xG로 — 그래서 파이프라인은 `enrich → transform` 순서로 xG를 점수에 반영합니다.
 
 ## 실행
 
