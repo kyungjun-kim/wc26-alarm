@@ -1,4 +1,4 @@
-"""Airflow DAG: ingest → transform → publish.
+"""Airflow DAG: ingest → transform → enrich → publish.
 
 wc26 패키지의 파이프라인 단계를 PythonOperator로 호출한다.
 패키지는 이미지에 설치되거나 PYTHONPATH(/opt/wc26/src)로 노출되어 있어야 한다.
@@ -34,12 +34,18 @@ def wc26_pipeline():
         return transform_scores()
 
     @task
-    def publish_step(_scored: int) -> int:
+    def enrich(_scored: int) -> int:
+        from wc26.pipeline import enrich_metrics
+
+        return enrich_metrics()
+
+    @task
+    def publish_step(_enriched: int) -> int:
         from wc26.pipeline import publish
 
         return publish()
 
-    publish_step(transform(ingest()))
+    publish_step(enrich(transform(ingest())))
 
 
 wc26_pipeline()

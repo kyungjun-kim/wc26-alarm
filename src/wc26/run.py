@@ -4,8 +4,9 @@
     python -m wc26.run initdb       # 스키마 적용
     python -m wc26.run ingest
     python -m wc26.run transform
+    python -m wc26.run enrich        # FotMob xG 보강 (선택, 비공식)
     python -m wc26.run publish
-    python -m wc26.run all          # ingest -> transform -> publish
+    python -m wc26.run all          # ingest -> transform -> enrich -> publish
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ import sys
 from pathlib import Path
 
 from .db import get_conn
-from .pipeline import ingest_football_data, publish, transform_scores
+from .pipeline import enrich_metrics, ingest_football_data, publish, transform_scores
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
@@ -34,7 +35,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="wc26.run")
     parser.add_argument(
         "step",
-        choices=["initdb", "ingest", "transform", "publish", "all"],
+        choices=["initdb", "ingest", "transform", "enrich", "publish", "all"],
     )
     args = parser.parse_args(argv)
 
@@ -42,11 +43,13 @@ def main(argv: list[str] | None = None) -> int:
         "initdb": initdb,
         "ingest": ingest_football_data,
         "transform": transform_scores,
+        "enrich": enrich_metrics,
         "publish": publish,
     }
     if args.step == "all":
         ingest_football_data()
         transform_scores()
+        enrich_metrics()
         publish()
     else:
         steps[args.step]()
