@@ -64,7 +64,7 @@
 | `GET /api/tonight?hours=24&min_score=0` | 지금(KST)부터 `hours`시간 내 경기, 점수순. `min_score`로 하한 필터 |
 | `GET /api/day/{YYYY-MM-DD}?min_score=0` | 특정 KST 날짜의 모든 경기, 점수순 |
 | `GET /healthz` | 헬스체크 |
-| `GET /` | "오늘 밤" 화면 (정적 프론트) |
+| `GET /` | "오늘 밤" 화면 (정적 프론트, 이전/다음 날 네비게이션) |
 
 각 경기 응답에는 FotMob 보강이 있으면 `home_xg`/`away_xg`가 포함됩니다(없으면 `null`). 프론트는 xG가 있을 때만 표시합니다.
 
